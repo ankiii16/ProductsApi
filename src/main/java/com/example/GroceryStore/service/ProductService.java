@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -24,7 +25,7 @@ public class ProductService {
     }
 
     public Product addProduct(Product product) {
-        Optional<Product> productByCode = productRepository.findByProductQRCode(product.getProductQRCode());
+        Optional<Product> productByCode = productRepository.findByProductDetailsProductQRCode(product.getProductDetails().getProductQRCode());
         if (productByCode.isPresent()) {
             throw new IllegalStateException("Product already Exits");
         }
@@ -32,18 +33,18 @@ public class ProductService {
     }
 
     @Transactional
-    public Optional<Product> deleteProduct(Long productQRCode) {
-        Optional<Product> productByCode = productRepository.findByProductQRCode(productQRCode);
+    public Optional<Product> deleteProduct(BigDecimal productQRCode) {
+        Optional<Product> productByCode = productRepository.findByProductDetailsProductQRCode(productQRCode);
         if (productByCode.isPresent()) {
-            productRepository.deleteByProductQRCode(productQRCode);
+            productRepository.deleteByProductDetailsProductQRCode(productQRCode);
         } else {
             throw new ResourceNotFoundException("Product Not Found");
         }
         return productByCode;
     }
 
-    public Optional<Product> getProductByQRCode(long productQRCode) {
-        Optional<Product> productByCode = productRepository.findByProductQRCode(productQRCode);
+    public Optional<Product> getProductByQRCode(BigDecimal productQRCode) {
+        Optional<Product> productByCode = productRepository.findByProductDetailsProductQRCode(productQRCode);
         if (productByCode.isPresent()) {
             return productByCode;
         } else {
@@ -52,10 +53,10 @@ public class ProductService {
     }
 
     @Transactional
-    public Product updateProduct(long productQRCode, float productPrice) {
-        Product product = productRepository.findByProductQRCode(productQRCode).orElseThrow(() -> new ResourceNotFoundException("Product Not Found"));
-        if (productPrice != 0 && !Objects.equals(product.getProductPrice(), productPrice)) {
-            product.setProductPrice(productPrice);
+    public Product updateProduct(BigDecimal productQRCode, BigDecimal productPrice) {
+        Product product = productRepository.findByProductDetailsProductQRCode(productQRCode).orElseThrow(() -> new ResourceNotFoundException("Product Not Found"));
+        if (!Objects.equals(product.getProductDetails().getProductPrice(), productPrice)) {
+            product.getProductDetails().setProductPrice(productPrice);
         }
         return product;
     }

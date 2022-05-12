@@ -10,12 +10,12 @@ import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "products")
-@SecondaryTable(name = "product_details", pkJoinColumns = @PrimaryKeyJoinColumn(name = "id"))
+@SecondaryTable(name = "product_details", pkJoinColumns = @PrimaryKeyJoinColumn(name = "product_id"))
 public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id", unique = true)
+    @Column(name = "product_id", unique = true)
     private long id;
 
 
@@ -37,6 +37,18 @@ public class Product {
     @Size(min = 2, message = "product image url should be at least 2 character long")
     private String productImageURL;
 
+
+    public ProductSubCategory getProductSubCategory() {
+        return productSubCategory;
+    }
+
+    public void setProductSubCategory(ProductSubCategory productSubCategory) {
+        this.productSubCategory = productSubCategory;
+    }
+
+    @ManyToOne(targetEntity = ProductSubCategory.class,cascade = {CascadeType.ALL})
+    @JoinColumn(name = "sc_id")
+    private ProductSubCategory productSubCategory;
     public String getProductImageURL() {
         return productImageURL;
     }

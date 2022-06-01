@@ -28,10 +28,10 @@ import java.util.Set;
 @Slf4j
 public class ProductDetailConfig {
 
-    @Value("${application.bucket.name}")
-    private String bucketName;
-    @Autowired
-    private AmazonS3 s3Client;
+//    @Value("${application.bucket.name}")
+//    private String bucketName;
+//    @Autowired
+//    private AmazonS3 s3Client;
 
     @Bean
     CommandLineRunner commandLineRunner(ProductRepository productRepository,

@@ -5,6 +5,7 @@ import com.example.GroceryStore.repository.ProductRepository;
 import com.example.GroceryStore.response.ResponseHandler;
 import com.example.GroceryStore.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,29 +22,20 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
-    @GetMapping("/getProducts")
-    public ResponseEntity getAllProducts() {
-        return ResponseHandler.generateResponse("Success", HttpStatus.OK, this.productService.getAllProducts());
+    @GetMapping("/getAllProducts")
+    public ResponseEntity getAllProducts(@RequestParam("offset") int offset,@RequestParam("pageSize") int pageSize) {
+        Page<Product> allProducts = this.productService.getAllProducts(offset, pageSize);
+
+        return ResponseHandler.generateResponse("Success", HttpStatus.OK,allProducts.getContent(),
+
+                true,allProducts.getTotalPages(),allProducts.getTotalElements());
     }
 
-    @GetMapping("/getProductByCode")
-    public ResponseEntity getProductByCode(@RequestParam BigDecimal productQRCode) {
-        return ResponseHandler.generateResponse("Product Found", HttpStatus.OK, productService.getProductByQRCode(productQRCode));
+    @GetMapping("/getAllProductByName")
+    public ResponseEntity getAllProductsByName(@RequestParam("offset") int offset,@RequestParam("pageSize") int pageSize,@RequestParam("name") String name){
+
+       Optional< Page<Product>> allProducts = this.productService.getAllProductsByName(offset, pageSize,name);
+       return ResponseHandler.generateResponse("Success",HttpStatus.OK,allProducts.get().getContent(),true,allProducts.get().getTotalPages(),allProducts.get().getTotalElements());
     }
 
-
-    @PutMapping("/updateProduct")
-    public ResponseEntity updateProductByCode(@RequestParam BigDecimal productQRCode, @Valid @RequestBody Product product) {
-        return ResponseHandler.generateResponse("Product Found", HttpStatus.OK, productService.updateProduct(productQRCode, product.getProductDetails().getProductPrice()));
-    }
-
-    @PostMapping("/addProduct")
-    public ResponseEntity addProduct(@Valid @RequestBody Product product) {
-        return ResponseHandler.generateResponse("Success", HttpStatus.OK, productService.addProduct(product));
-    }
-
-    @DeleteMapping("/deleteProduct")
-    public ResponseEntity deleteProduct(@RequestParam BigDecimal productQRCode) {
-        return ResponseHandler.generateResponse("Product Successfully Deleted!", HttpStatus.OK, productService.deleteProduct(productQRCode));
-    }
 }

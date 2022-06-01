@@ -25,12 +25,17 @@ import java.util.stream.Collectors;
 
 @ControllerAdvice
 public class ResponseHandler extends ResponseEntityExceptionHandler {
-    public static ResponseEntity<Object> generateResponse(String message, HttpStatus status, Object responseObj) {
+    public static ResponseEntity<Object> generateResponse(String message, HttpStatus status, Object responseObj,
+                                                          Boolean showPagesCount,int totalPages,long totalElements) {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("timestamp", new Date());
         map.put("status", status.value());
         map.put("message", message);
         map.put("data", responseObj);
+        if(showPagesCount){
+            map.put("totalPages",totalPages);
+            map.put("totalElements",totalElements);
+        }
 
         return new ResponseEntity<Object>(map, status);
     }

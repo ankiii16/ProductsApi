@@ -1,9 +1,14 @@
 package com.example.GroceryStore.service;
 
+import com.example.GroceryStore.dto.ProductDto;
 import com.example.GroceryStore.entity.Product;
 import com.example.GroceryStore.exception.ResourceNotFoundException;
 import com.example.GroceryStore.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -20,44 +25,26 @@ public class ProductService {
     private ProductRepository productRepository;
 
 
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
+    public Page<Product> getAllProducts(int offset, int pageSize) {
+        return productRepository.findAll(PageRequest.of(offset,pageSize));
     }
 
-    public Product addProduct(Product product) {
-        Optional<Product> productByCode = productRepository.findByProductDetailsProductQRCode(product.getProductDetails().getProductQRCode());
-        if (productByCode.isPresent()) {
-            throw new IllegalStateException("Product already Exits");
+    public Optional<Page<Product>> getAllProductsByName(int offset, int pageSize, String name) {
+//        return productRepository.findAll(PageRequest.of(offset,pageSize));
+        Optional<List<Product>> byNameContaining = productRepository.findByNameLike(name);
+        if(!byNameContaining.get().isEmpty() && byNameContaining.isPresent()){
+            Pageable paging = PageRequest.of(offset, pageSize);
+            int start = Math.min((int)paging.getOffset(), byNameContaining.get().size());
+            int end = Math.min((start + paging.getPageSize()), byNameContaining.get().size());
+            Page<Product> pd=new PageImpl<>(byNameContaining.get().subList(start,end),paging,byNameContaining.get().size());
+            return Optional.of(pd);
         }
-        return productRepository.save(product);
+        else{
+            throw new ResourceNotFoundException("No product found with following keyword");
+        }
+
     }
 
-    @Transactional
-    public Optional<Product> deleteProduct(BigDecimal productQRCode) {
-        Optional<Product> productByCode = productRepository.findByProductDetailsProductQRCode(productQRCode);
-        if (productByCode.isPresent()) {
-            productRepository.deleteByProductDetailsProductQRCode(productQRCode);
-        } else {
-            throw new ResourceNotFoundException("Product Not Found");
-        }
-        return productByCode;
-    }
 
-    public Optional<Product> getProductByQRCode(BigDecimal productQRCode) {
-        Optional<Product> productByCode = productRepository.findByProductDetailsProductQRCode(productQRCode);
-        if (productByCode.isPresent()) {
-            return productByCode;
-        } else {
-            throw new ResourceNotFoundException("Product Not Found");
-        }
-    }
 
-    @Transactional
-    public Product updateProduct(BigDecimal productQRCode, BigDecimal productPrice) {
-        Product product = productRepository.findByProductDetailsProductQRCode(productQRCode).orElseThrow(() -> new ResourceNotFoundException("Product Not Found"));
-        if (!Objects.equals(product.getProductDetails().getProductPrice(), productPrice)) {
-            product.getProductDetails().setProductPrice(productPrice);
-        }
-        return product;
-    }
 }

@@ -1,6 +1,7 @@
 package com.example.GroceryStore.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,7 +26,7 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "product_id", unique = true)
-    private long id;
+    public long product_id;
 
 
     //should not be empty
@@ -34,23 +35,27 @@ public class Product {
     @NotEmpty(message = "product name cannot be empty")
     @Size(min = 2, message = "product name should be at least 2 character long")
     @Size(max = 100, message = "product name cannot be more than 100 character")
-    private String name;
+    public String name;
 
 
     @Column(name = "image_url", nullable = false)
     @NotEmpty(message = "product image cannot be empty")
     @Size(min = 2, message = "product image url should be at least 2 character long")
-    private String s3ImageUrl;
+    public String s3ImageUrl;
 
     @Column(name = "price", nullable = false)
-    private float price;
+    public float price;
 
     @Column(name = "discounted_price", nullable = false)
-    private float discountedPrice;
+    public float discountedPrice;
 
     @Column(name="qr_code",nullable = false)
-    private BigDecimal qrCode;
+    public BigDecimal qrCode;
 
+    @OneToOne(targetEntity = Description.class,cascade = {CascadeType.ALL})
+    @JoinColumn(name = "desc_id")
+    @JsonIgnore
+    private Description description;
 
 
 }

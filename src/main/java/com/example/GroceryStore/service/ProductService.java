@@ -44,7 +44,7 @@ public class ProductService {
             return Optional.of(Utils.getPageFromList(paging,returningList));
         }
         else{
-            throw new ResourceNotFoundException("No product found with following keyword");
+            throw new ResourceNotFoundException("No product found with the given name");
         }
     }
 }

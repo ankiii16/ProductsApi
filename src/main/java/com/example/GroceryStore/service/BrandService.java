@@ -27,7 +27,7 @@ public class BrandService {
         Pageable paging = PageRequest.of(offset, pageSize);
         Optional<Page<Brand>> productsByBrand = brandRepository.findByName(brandName,paging);
         List<ProductDto> returningList=new ArrayList<>();
-        if(productsByBrand.isPresent()){
+        if(productsByBrand.isPresent()&&!productsByBrand.get().isEmpty()){
             List<Product> products = productsByBrand.get().getContent().get(0).getProducts();
             for (Product product:products
                  ) {
@@ -39,7 +39,7 @@ public class BrandService {
             return Optional.of(pd);
         }
         else{
-            throw new ResourceNotFoundException("No Brand Found");
+            throw new ResourceNotFoundException("No Brand Found with the given name");
         }
     }
 

@@ -28,7 +28,7 @@ public class SubCategoryService {
     public Optional<Page<ProductDto>> getAllProductsBySubCategory(String subCategoryName, int offset, int pageSize){
         Optional<List<SubCategory>> subCategoryByName = this.subCategoryRepository.findByName(subCategoryName);
 
-        if(subCategoryByName.isPresent()){
+        if(subCategoryByName.isPresent()&&!subCategoryByName.get().isEmpty()){
             Pageable paging = PageRequest.of(offset, pageSize);
             List<Product> products = subCategoryByName.get().get(0).getProducts();
             List<ProductDto> returningList=new ArrayList<>();
@@ -39,7 +39,7 @@ public class SubCategoryService {
             return Optional.of(Utils.getPageFromList(paging,returningList));
         }
         else{
-            throw new ResourceNotFoundException("Sub Category Not Found");
+            throw new ResourceNotFoundException("No products found with the given sub category");
         }
 
 

@@ -50,7 +50,7 @@ public class Category {
     private List<Product> products=new ArrayList<>();
 
 
-    @OneToMany(cascade = {CascadeType.PERSIST,CascadeType.MERGE})
+    @ManyToMany(cascade = {CascadeType.PERSIST,CascadeType.MERGE})
     @JsonIgnore
     @JoinTable(name="brand_by_category",joinColumns = {@JoinColumn(name="category_id")},
             inverseJoinColumns = {@JoinColumn(name="brand_id")}

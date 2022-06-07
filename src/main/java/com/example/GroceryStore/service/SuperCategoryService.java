@@ -26,7 +26,8 @@ public class SuperCategoryService {
     private SuperCategoryRepository superCategoryRepository;
 
     public Optional<Set<SubCategoryDto>> getAllSubCategoriesBySuperCategory(String superCategoryName){
-        SuperCategory superCategoryByName = getSuperCategoryByName(superCategoryName);
+        String messageIfNotFound="No sub categories found with given super category";
+        SuperCategory superCategoryByName = getSuperCategoryByName(superCategoryName,messageIfNotFound);
         Set<SubCategory> subCategories = superCategoryByName.getSubCategories();
         Set<SubCategoryDto> returningList=new HashSet<>();
         for (SubCategory sCat:subCategories
@@ -37,7 +38,8 @@ public class SuperCategoryService {
     }
         public Optional<Page<ProductDto>> getAllProductsBySuperCategory(String superCategoryName, int offset, int pageSize){
         Pageable paging = PageRequest.of(offset, pageSize);
-        SuperCategory superCategory = getSuperCategoryByName(superCategoryName);
+        String messageIfNotFound="No products found with given super category";
+        SuperCategory superCategory = getSuperCategoryByName(superCategoryName,messageIfNotFound);
         List<ProductDto> returningList=new ArrayList<>();
         List<Product> products = superCategory.getProducts();
         for (Product product:products
@@ -47,13 +49,13 @@ public class SuperCategoryService {
         return Optional.of(Utils.getPageFromList(paging,returningList));
     }
 
-    private SuperCategory getSuperCategoryByName(String name){
+    private SuperCategory getSuperCategoryByName(String name,String message){
         Optional<List<SuperCategory>> superCategoryByName = superCategoryRepository.findByName(name);
-        if (superCategoryByName.isPresent()){
+        if (superCategoryByName.isPresent()&&!superCategoryByName.get().isEmpty()){
             return superCategoryByName.get().get(0);
         }
         else{
-            throw new ResourceNotFoundException("No product found with following keyword");
+            throw new ResourceNotFoundException(message);
         }
     }
     private SubCategoryDto convertSuperCategoryToSubCategoryDto(SubCategory subCategory){

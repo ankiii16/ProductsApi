@@ -20,7 +20,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class Brand {
+public class Brand  {
 
 
 
@@ -29,7 +29,7 @@ public class Brand {
     @Column(name = "brand_id", unique = true,nullable = false,updatable = false)
     public long id;
 
-    @Column(name = "name", nullable = false,unique = true)
+    @Column(name = "name", nullable = false)
     @Size(max = 50, message = "brand name cannot be more than 50 character")
     public String name;
 

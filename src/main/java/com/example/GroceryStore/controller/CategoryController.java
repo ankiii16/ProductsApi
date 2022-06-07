@@ -25,14 +25,14 @@ public class CategoryController implements BaseController{
     CategoryService categoryService;
     int pageSize= Constant.PAGE_SIZE;
 
-    @GetMapping("/getAllCategories")
+    @GetMapping("getAllCategories")
     @Override
     public ResponseEntity getAll(Optional<Integer> pageNumber){
         return ResponseHandler.generateResponse("Success", HttpStatus.OK,this.categoryService.getAllCategories() ,false,0,0);
     }
 
 
-    @GetMapping("/getAllSuperCategoryByCategory")
+    @GetMapping("getAllSuperCategoryByCategory")
     private ResponseEntity getAllSuperCategoryByCategory(@RequestParam("name") Optional<String> categoryName){
         if(categoryName.isPresent())
         return ResponseHandler.generateResponse("Success", HttpStatus.OK,this.categoryService.getAllSuperCategoriesByCategory(categoryName.get()) ,false,0,0);
@@ -41,7 +41,7 @@ public class CategoryController implements BaseController{
     }
 
     @Override
-    @GetMapping("/getAllProductsByCategory")
+    @GetMapping("getAllProductsByCategory")
     public ResponseEntity getAllProductsByName(Optional<String> name, Optional<Integer> pageNumber) {
         if(name.isPresent()){
             int offset= Utils.optionalToValue(pageNumber);
@@ -52,7 +52,7 @@ public class CategoryController implements BaseController{
             throw new ResourceNotFoundException("Category Name is Required");
 
     }
-    @GetMapping("/getProductDescriptionByProductId")
+    @GetMapping("getProductDescriptionByProductId")
     public ResponseEntity getProductDescriptionByProductId(@RequestParam("id") Optional<Long> id) {
         if(id.isPresent())
         return ResponseHandler.generateResponse("Success", HttpStatus.OK,this.categoryService.getProductDescById(id.get()),false,0,0);

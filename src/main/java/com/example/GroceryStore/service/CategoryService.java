@@ -51,7 +51,7 @@ public class CategoryService {
             return Optional.of(pd);
         }
         else{
-            throw new ResourceNotFoundException("Category Not Found");
+            throw new ResourceNotFoundException("No category found with the given name");
         }
 
 
@@ -69,7 +69,7 @@ public class CategoryService {
             return Optional.of(superCategoryDtos);
         }
         else{
-            throw new ResourceNotFoundException("Category Not Found");
+            throw new ResourceNotFoundException("No category found with the given name");
         }
     }
 
@@ -115,7 +115,7 @@ public class CategoryService {
             return Optional.of(productDescriptionDto);
         }
         else{
-            throw new ResourceNotFoundException("Description not found");
+            throw new ResourceNotFoundException("No description found with the given product id");
         }
     }
 

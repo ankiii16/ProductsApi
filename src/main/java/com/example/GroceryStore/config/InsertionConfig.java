@@ -38,13 +38,18 @@ public class InsertionConfig {
         HashMap<String,List<Product>> productSuperCategoryHashMap=new HashMap<>();
         HashMap<String,List<Product>> productSubCategoryHashMap=new HashMap<>();
         List<Category> allCompleteCategories=new ArrayList<>();
-        HashMap< String,HashMap<String,List<Product>>> productsByBrandCategoryHashMap=new HashMap<>();
-        Set<Brand> allCompleteBrandsWithProduct=new HashSet<>();
+        HashMap< String,Set<String>> brandByCategoryHashMap=new HashMap<>();
+        HashMap< String,List<Product>> productByBrandHasMap=new HashMap<>();
+        Set<Brand> allUniqueBrands=new HashSet<>();
+        HashMap<String,Brand> setOfBrandsWithProduct=new HashMap<>();
         try (FileReader reader = new FileReader(filePath)) {
             //Read JSON file
             Object obj = jsonParser.parse(reader);
             JSONArray productList = (JSONArray) obj;
             for (int i=0;i<productList.size();i++){
+                if(i==949){
+                    System.out.println("aa");
+                }
                 String superCategory=Utils.getJsonProperty("super_category", (JSONObject) productList.get(i));
                 String category=Utils.getJsonProperty("category", (JSONObject) productList.get(i));
                 String subcategory=Utils.getJsonProperty("sub_category", (JSONObject) productList.get(i));
@@ -60,23 +65,25 @@ public class InsertionConfig {
                 String weight=Utils.getJsonProperty("weight", (JSONObject) productList.get(i));
                 String title=Utils.getJsonProperty("title", (JSONObject) productList.get(i));
                 String brand=Utils.getJsonProperty("brand", (JSONObject) productList.get(i));
-
+                if(brand.isEmpty()){
+                    brand="none";
+                }
                 Description description=getProductDescription(title,weight,ingredients,expiry,descriptionAboutProduct);
                 Product product=getProduct(productName,price,discountedPrice,s3url,description);
 
-                if(productsByBrandCategoryHashMap.containsKey(category)){
-                    if(productsByBrandCategoryHashMap.get(category).containsKey(brand)){
-                        productsByBrandCategoryHashMap.get(category).get(brand).add(product);
-                    }
-                    else {
-                        productsByBrandCategoryHashMap.get(category).put(brand,new ArrayList<>());
-                        productsByBrandCategoryHashMap.get(category).get(brand).add(product);
-                    }
+                if(brandByCategoryHashMap.containsKey(category)){
+                    brandByCategoryHashMap.get(category).add(brand);
                 }
                 else{
-                    productsByBrandCategoryHashMap.put(category,new HashMap<>());
-                    productsByBrandCategoryHashMap.get(category).put(brand,new ArrayList<>());
-                    productsByBrandCategoryHashMap.get(category).get(brand).add(product);
+                    brandByCategoryHashMap.put(category,new HashSet<>());
+                    brandByCategoryHashMap.get(category).add(brand);
+                }
+                if(productByBrandHasMap.containsKey(brand)){
+                    productByBrandHasMap.get(brand).add(product);
+                }
+                else{
+                    productByBrandHasMap.put(brand,new ArrayList<>());
+                    productByBrandHasMap.get(brand).add(product);
                 }
                 if(categoriesHashMap.containsKey(category)){
                     if (!categoriesHashMap.get(category).containsKey(superCategory)) {
@@ -137,19 +144,30 @@ public class InsertionConfig {
                     createdSuperCategory.getProducts().addAll(products);
 
                     createdCategory.getSuperCategories().add(createdSuperCategory);
+
                 }
                 List<Product> products = productCategoryHashMap.get(nameOfCategory);
-
                 createdCategory.getProducts().addAll(products);
-                HashMap<String, List<Product>> stringListHashMap = productsByBrandCategoryHashMap.get(nameOfCategory);
-                for (Map.Entry<String, List<Product>> brands : stringListHashMap.entrySet()) {
-                    Brand b=new Brand();
-                    String brandName=brands.getKey();
-                    b.setName(brandName);
-                    b.setProducts(brands.getValue());
-                    createdCategory.getBrands().add(b);
-                }
                 allCompleteCategories.add(createdCategory);
+            }
+            for (Map.Entry<String, List<Product>> products : productByBrandHasMap.entrySet()) {
+                String key = products.getKey();
+                Brand b=new Brand();
+                b.setName(key);
+                b.setProducts(products.getValue());
+                setOfBrandsWithProduct.put(key,b);
+            }
+            for (Category cat:allCompleteCategories
+                 ) {
+                String name = cat.getName();
+                Set<String> brands = brandByCategoryHashMap.get(name);
+                Set<Brand> b=new HashSet<>();
+                for (String brand:brands
+                     ) {
+                    b.add(setOfBrandsWithProduct.get(brand));
+                }
+                cat.setBrands(b);
+
             }
             categoryRepository.saveAll(allCompleteCategories);
         }
